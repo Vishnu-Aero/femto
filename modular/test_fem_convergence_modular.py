@@ -16,7 +16,7 @@ errs_L2 = []
 for n_elt in n_elts:
     nodes, elements, dbc = fem.create_mesh_1d_uniform(n_elt)
     uh = fem.solve_bvp(nodes, elements, dbc, n_quad)
-    errs_L2.append(fem.compute_L2_error(nodes, elements, uh, n_test))
+    
 errs_L2 = np.array(errs_L2)
 
 plt.loglog(1/n_elts, errs_L2, 'ko-', lw=2, label='FEM')

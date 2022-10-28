@@ -1,3 +1,4 @@
+from xml.dom import NOT_FOUND_ERR
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse.linalg import spsolve
@@ -182,6 +183,8 @@ def compute_stiffness_matrix(nodes, elements, n_quad):
                 V.append(ke[i, j]/he)
 
     K = coo_matrix((V, (II, JJ)), shape=(M, M))
+    # print("COO")
+    # print(K)
     return K
 
 
@@ -220,11 +223,21 @@ def solve_bvp(nodes, elements, dbc, n_quad):
     renumber_mesh_dof(nodes, elements, dof)
 
     K = compute_stiffness_matrix(nodes, elements, n_quad)
+    # print("break1")
+    # print(K)
     K = K.tocsr()
+    # print("break2")
+    # print(K)
     F = compute_load_vector(nodes, elements, n_quad)
+    # print("break3")
+    # print(F)
 
     N = _get_num_unknowns(dof)
     U_dbc = dof[N:]
+    # print("break4")
+    # print(U_dbc)
+
+    #U = spsolve(K[:N, :N], F[:N] - K[:N, N:] @ U_dbc)
     U = spsolve(K[:N, :N], F[:N] - K[:N, N:] @ U_dbc)
 
     dof[:N] = U
@@ -272,3 +285,11 @@ def compute_L2_error(nodes, elements, dof, n_quad=100):
     us_fem = np.array([fe_interpolate(nodes, elements, dof, x) for x in xs])
     err_L2 = np.mean((us_exact - us_fem)**2)
     return np.sqrt(err_L2)
+
+# if __name__ == '__main__':
+#     n_elt = 4
+#     n_quad = 2
+#     n_nodes = n_elt + 1
+
+#     nodes, elements, dbc = create_mesh_1d_uniform(n_elt)
+#     uh = solve_bvp(nodes, elements, dbc, n_quad)
